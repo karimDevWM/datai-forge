@@ -1,14 +1,13 @@
 {
 	"name": "Datai Forge - PySpark Dev Env",
-	"build": {
-		"dockerfile": "../Dockerfile",
-		"context": ".."
-	},
-
-	// On force l'utilisation du dossier /app défini dans le Dockerfile
-	"workspaceFolder": "/app",
-	"workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind",
-
+	"dockerComposeFile": [
+		"../docker-compose.yml",
+		"docker-compose.devcontainer.yml"
+	],
+	"service": "backend",
+	// Le dossier de travail correspond au montage racine defini dans docker-compose
+	"workspaceFolder": "/workspace",
+	"overrideCommand": false,
 	"customizations": {
 		"vscode": {
 			// Liste des extensions à installer automatiquement dans le conteneur
@@ -19,12 +18,10 @@
 				"ms-toolsai.jupyter",
 				"njpwerner.autodocstring",
 				"mechatroner.rainbow-csv",
-
 				// Outils de développement généraux
 				"esbenp.prettier-vscode",
 				"davidanson.vscode-markdownlint",
 				"yzhang.markdown-all-in-one",
-
 				// Collaboration & Intégration
 				"docker.docker",
 				"donjayamanne.githistory",
@@ -32,7 +29,7 @@
 			]
 		}
 	},
-
 	// Commande à exécuter après la création du conteneur.
-	"postCreateCommand": "pip install -r requirements.txt && pre-commit install && git config --local filter.nbstripout.clean 'python3 -m nbstripout' && git config --local filter.nbstripout.smudge cat && git config --local filter.nbstripout.required true && git config --local filter.nbstripout.extrakeys 'metadata.kernelspec metadata.language_info metadata.execution cell.metadata.execution cell.metadata.collapsed cell.metadata.scrolled' && echo 'Conteneur prêt'"
+	"postCreateCommand": "pip install -r /workspace/requirements.txt && pip install ./backend && pre-commit install && git config --local filter.nbstripout.clean 'python3 -m nbstripout' && git config --local filter.nbstripout.smudge cat && git config --local filter.nbstripout.required true && git config --local filter.nbstripout.extrakeys 'metadata.kernelspec metadata.language_info metadata.execution cell.metadata.execution cell.metadata.collapsed cell.metadata.scrolled' && echo 'Conteneur prêt'",
+	"postStartCommand": "bash -lc \"if ! pgrep -af '^mkdocs serve -f /workspace/docs/mkdocs.yml -a 0.0.0.0:8000$' >/dev/null; then nohup mkdocs serve -f /workspace/docs/mkdocs.yml -a 0.0.0.0:8000 >/tmp/mkdocs.log 2>&1 & fi; if ! pgrep -af '^python /workspace/frontend/src/app.py$' >/dev/null; then nohup python /workspace/frontend/src/app.py >/tmp/frontend.log 2>&1 & fi; echo 'Frontend (8050) et Docs (8000) démarrés'; exit 0\""
 }
