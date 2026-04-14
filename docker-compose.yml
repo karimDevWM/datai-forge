@@ -1,37 +1,61 @@
 services:
-  # Your main development container
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile # Assumes your devcontainer's Dockerfile is in .devcontainer/
-    volumes:
-      - .:/app # Mounts your project root into the container at /app
-    env_file: .secrets
-    environment:
-      # MySQL connection variables (must match mysql service below)
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-    command: sleep infinity # Keeps the container running for VS Code to attach
-    depends_on:
-      mysql:
-        condition: service_healthy # Waits for MySQL to be healthy
-
   # MySQL database service
   mysql:
-    image: mysql:8.0 # You can choose a specific version, e.g., mysql:8.0
-    restart: unless-stopped # Always restart if it stops
+    image: mysql:8.0
+    restart: unless-stopped
     env_file: .secrets
     ports:
-      - "3306:3306" # Expose MySQL port to your host machine
+      - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql # Persistent volume for MySQL data
-      # Uncomment the line below if you have custom MySQL configuration files
-      # - ./mysql_conf:/etc/mysql/conf.d
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}" ]
       timeout: 20s
       retries: 10
       interval: 5s
 
+  # Backend service (ETL, ML, DB Scripts)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app
+      - ./:/workspace
+    env_file: .secrets
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Frontend service (Dash BI)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "8050:8050"
+    env_file: .secrets
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Documentation service (MkDocs)
+  docs:
+    build:
+      context: ./docs
+      dockerfile: Dockerfile
+    volumes:
+      - ./docs:/app
+    ports:
+      - "8000:8000"
+
 volumes:
-  mysql_data: # Define the named volume for persistent MySQL data
+  mysql_data:

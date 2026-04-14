@@ -5,6 +5,14 @@
 !/silver/.gitkeep
 /gold/*
 !/gold/.gitkeep
+backend/bronze/*
+!backend/bronze/.gitkeep
+backend/silver/*
+!backend/silver/.gitkeep
+backend/gold/*
+!backend/gold/.gitkeep
+backend/data-raw/*
+!backend/data-raw/.gitkeep
 
 # Reports & Documentation (Generated Artifacts)
 /reports/
@@ -29,6 +37,10 @@ __pycache__/
 .coverage
 htmlcov/
 .ruff_cache/
+*.egg-info/
+backend/build/
+backend/src/backend.egg-info/
+docs/docs.egg-info/
 
 # Système
 .DS_Store

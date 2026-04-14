@@ -1,0 +1,77 @@
+site_name: Datai Forge - Documentation Technique
+site_description: Documentation technique et audits de qualité du projet de prédiction électorale.
+site_url: https://datai-forge.github.io/datai-forge
+repo_url: https://github.com/Datai-Forge/datai-forge
+repo_name: GitHub
+use_directory_urls: true
+
+theme:
+  name: material
+  language: fr
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Passer au mode sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Passer au mode clair
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.expand
+    - navigation.indexes
+    - toc.follow
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Accueil: index.md
+  - Résumé: resume_modelisation.md
+  - Architecture:
+      - Vue d'ensemble: architecture.md
+      - Journal de Refactorisation: architecture_refactoring.md
+      - Déploiement par environnement: deploiement_environnements.md
+  - Machine Learning:
+      - Choix des Données ML: ml_choix_donnees.md
+      - Stratégie & OBT: ml.md
+      - Variables ML: dictionnaires/features_ml.md
+
+  - Données:
+      - Fiches Techniques:
+          - Élections: datasets/elections.md
+          - Sécurité: datasets/securite.md
+          - Niveau de Vie: datasets/social.md
+      - Dictionnaire des Données:
+          - Élections: dictionnaires/elections.md
+  - Onboarding:
+      - Guide de démarrage: onboarding.md
+      - Outils complémentaires: outils_complementaires.md
+  - Qualité & Santé:
+      - Standards & Outils: standards.md
+      - Couverture de Tests: reports/coverage.md
+      - Audit de Sécurité: reports/security.md
+      - Qualité de Code: reports/quality.md
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true

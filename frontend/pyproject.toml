@@ -1,0 +1,11 @@
+[project]
+name = "frontend"
+version = "0.1.0"
+description = "Dash BI frontend for Lyon presidential election analysis"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas==2.2.0",
+    "mysql-connector-python==9.6.0",
+    "dash==2.14.1",
+    "plotly==5.18.0",
+]

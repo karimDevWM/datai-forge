@@ -1,86 +1,77 @@
 # 2027 Presidential Election Prediction Project (Lyon Scope)
 
-This project aims to build a predictive model for the 2027 French presidential elections using historical data from the city of Lyon (INSEE Code: 69123). It relies on a medallion data architecture (Bronze, Silver, Gold) and a containerized development environment.
+This project is a multi-service application for predicting the 2027 French presidential elections in Lyon. It is divided into three main components: **Backend** (ETL/ML), **Frontend** (Dash BI), and **Documentation** (MkDocs).
+
+## 🏗 Architecture
+
+The project is organized as a monorepo with the following services:
+
+- **`backend/`**: ETL pipelines (Spark), Machine Learning models (Scikit-learn), and Database management.
+- **`frontend/`**: Interactive Dash BI dashboard for data visualization.
+- **`docs/`**: Technical documentation site built with MkDocs.
+- **`mysql`**: Dedicated database service for persistent storage.
 
 ## 🛠 Prerequisites
 
-To ensure reproducibility, the project uses Docker and VS Code:
-
 - **Docker Desktop** (or Engine on Linux).
-- **VS Code**.
-- **Dev Containers** extension by Microsoft.
-- **Act** to run CI locally (optional)
+- **Docker Compose**.
+- **VS Code** with the **Dev Containers** extension (recommended for backend development).
 
 ## 🚀 Quick Start
 
-1. **Open the project**: Launch VS Code and open the project root folder.
-2. **Start the container**:
-   - A notification should prompt you to "Reopen in Container".
-   - Alternatively, press `F1` (or `Ctrl+Shift+P`) and type: `Dev Containers: Reopen in Container`.
-3. **Automatic Setup**: The container will build the image (Spark 3.5, Java 17, Python 3.12) and install dependencies defined in `requirements.txt`.
-4. **Ready to code**: Once the build is finished, you are inside the container in the `/app` directory.
+### 1. Launch All Services
+
+To start the entire stack (Database, Backend, Frontend, and Docs):
+
+```bash
+docker-compose up --build
+```
+
+- **Frontend (Dash)**: [http://localhost:8050](http://localhost:8050)
+- **Documentation**: [http://localhost:8000](http://localhost:8000)
+- **MySQL**: `localhost:3306`
+
+### 2. Backend Development (Dev Container)
+
+For active development on ETL or ML:
+1. Open the project root in VS Code.
+2. Reopen in Container (it will use the `backend` service).
+3. The environment is pre-configured with Spark 3.5, Java 17, and all Python dependencies.
 
 ## 📂 Project Structure
 
-The architecture follows Data Engineering industry standards:
-
 ```text
 .
-├── data-raw/           # Immutable source data (CSV).
-├── bronze/             # Bronze Layer: Raw data in Parquet format + lineage.
-├── silver/             # Silver Layer: Cleaned and normalized data (WIP).
-├── gold/               # Gold Layer: ML-ready tables and Databricks integration.
-├── notebooks/          # Jupyter exploration lab.
-├── src/
-│   ├── common/         # Shared utilities (SparkSession, Logging).
-│   ├── etl/            # Production scripts (Ingestion, Transformation).
-│   │   └── bronze/     # Bronze layer specific logic.
-│   └── config.py       # Centralized configuration (Paths, Constants).
-└── .devcontainer/      # VS Code Docker environment configuration.
+├── backend/                # ETL, ML, and Data Layers
+│   ├── src/                # Source code (etl, ml, common)
+│   ├── data-raw/           # Immutable source data
+│   ├── bronze/silver/gold/ # Medallion data layers (Parquet)
+│   ├── notebooks/          # Jupyter exploration
+│   └── tests/              # Backend tests
+├── frontend/               # Dash BI Application
+│   └── src/app.py          # Dashboard entry point
+├── docs/                   # MkDocs Documentation
+│   ├── docs/               # Markdown files
+│   └── mkdocs.yml          # Configuration
+└── docker-compose.yml      # Orchestration
 ```
 
-## ⚙️ How to work on a dataset?
+## ⚙️ Service Details
 
-### 1. ETL Script Development
-
-Transformation scripts should be located in `src/etl/`. To run a script while respecting module imports:
-
+### Backend (ETL & ML)
+Run an ETL script from within the backend container:
 ```bash
 python -m src.etl.bronze.bronze_presidentielle
 ```
 
-### 2. Interactive Exploration
+### Frontend (Dash BI)
+The dashboard connects directly to the MySQL service. It is accessible at `http://localhost:8050`.
 
-The `notebooks/` directory is dedicated to exploratory analysis. The Jupyter extension is pre-configured to use the container's kernel with Spark.
+### Documentation
+The documentation is served by MkDocs at `http://localhost:8000`. It is automatically reloaded when you modify files in `docs/docs/`.
 
-- **Pro Tip**: DataFrame display is optimized (Eager Evaluation) for a "Databricks-like" visual rendering.
+## 💡 Best Practices
 
-### 3. Debugging
-
-Open any Python script and press **F5**. The configuration in `.vscode/launch.json` is set up to launch the current script with the interactive debugger and the `PYTHONPATH` correctly configured.
-
-### 4. Launch the BI Dash app
-
-The devcontainer auto-starts the dashboard at startup.
-
-Default URL:
-
-`http://localhost:8050`
-
-If you need to restart it manually, run:
-
-```bash
-python -m src.bi.dash_app
-```
-
-Live logs are written to `/tmp/dash_app.log`.
-
-## 💡 Best Practices & Standards
-
-- **Path Centralization**: Always use `src.config` to access data directories. Never hardcode relative paths.
-- **Spark Session Management**: Import `get_spark_session` from `src.common.spark_session_manager`.
-- **Data Lineage**: Every generated table must include `source_file` and `processing_timestamp` metadata columns.
-- **Storage Format**: **Parquet** format is mandatory between layers to ensure performance and compatibility with the future Gold layer on Databricks.
-- **Logging**: Use the `logging` module (configured in scripts) instead of `print` to ensure traceability in production environments.
-
----
+- **Service Isolation**: Keep dependencies separate in each service's `pyproject.toml`.
+- **Path Centralization**: In the backend, use `src.config` to access data directories.
+- **Database**: Use the `mysql` service name as the host when connecting from other containers.
